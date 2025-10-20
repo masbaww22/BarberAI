@@ -11,6 +11,8 @@
     .upload-preview { width: 100%; height: 280px; border-radius: 12px; background-color: #f3f4f6; display: flex; align-items: center; justify-content: center; overflow: hidden; }
     .hair-icon { width: 48px; height: 48px; }
     header { backdrop-filter: blur(12px); background: rgba(255,255,255,0.8); }
+    .spinner { animation: spin 1s linear infinite; }
+    @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
   </style>
 </head>
 <body class="bg-gray-50 text-gray-800 min-h-screen flex flex-col">
@@ -19,11 +21,18 @@
   <header class="w-full border-b sticky top-0 z-10 bg-white/80 backdrop-blur">
     <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
       <h1 class="text-2xl font-semibold text-gray-800">💈 BarberAI</h1>
-      <nav class="hidden md:flex space-x-6 text-sm text-gray-600">
-        <a href="#" class="hover:text-black">Home</a>
-        <button id="howBtn" class="hover:text-black focus:outline-none">How it works</button>
-        <button id="contactBtn" class="hover:text-black focus:outline-none">Contact</button>
-      </nav>
+      <div class="flex items-center gap-4">
+        <!-- Language Toggle -->
+        <select id="languageToggle" class="text-sm border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring focus:ring-gray-200">
+          <option value="en">English</option>
+          <option value="id">Bahasa Indonesia</option>
+        </select>
+        <nav class="hidden md:flex space-x-6 text-sm text-gray-600">
+          <a href="#" class="hover:text-black">Home</a>
+          <button id="howBtn" class="hover:text-black focus:outline-none">How it works</button>
+          <button id="contactBtn" class="hover:text-black focus:outline-none">Contact</button>
+        </nav>
+      </div>
     </div>
   </header>
 
@@ -32,19 +41,19 @@
 
     <!-- Upload Section -->
     <section class="card p-6">
-      <h2 class="text-xl font-bold mb-3">Upload Photo</h2>
-      <p class="text-sm text-gray-500 mb-6">Upload a clear photo of the customer’s hair (top or 45° angle). Crop to the hair area for best results.</p>
+      <h2 class="text-xl font-bold mb-3" data-i18n="uploadTitle">Upload Photo</h2>
+      <p class="text-sm text-gray-500 mb-6" data-i18n="uploadDesc">Upload a clear photo of the customer's hair (top or 45° angle). Crop to the hair area for best results.</p>
 
       <div class="space-y-5">
         <!-- Preview -->
         <div class="upload-preview relative">
-          <span id="previewText" class="text-gray-400 text-sm">No image selected</span>
+          <span id="previewText" class="text-gray-400 text-sm" data-i18n="noImage">No image selected</span>
           <img id="previewImage" src="" alt="preview" class="hidden absolute inset-0 w-full h-full object-cover" />
         </div>
 
         <!-- File input -->
         <div>
-          <label class="block mb-2 text-sm font-medium text-gray-700">Choose image</label>
+          <label class="block mb-2 text-sm font-medium text-gray-700" data-i18n="chooseImage">Choose image</label>
           <input id="fileInput" type="file" accept="image/*" class="block w-full text-sm p-2 border border-gray-300 rounded focus:outline-none focus:ring focus:ring-gray-200" />
         </div>
 
@@ -57,22 +66,24 @@
 
         <!-- Buttons -->
         <div class="flex gap-3">
-          <button id="analyzeBtn" class="flex-1 px-4 py-2 bg-black text-white rounded hover:bg-gray-900 transition">Analyze</button>
-          <button id="resetBtn" class="flex-1 px-4 py-2 border border-gray-300 rounded hover:bg-gray-100 transition">Reset</button>
+          <button id="analyzeBtn" class="flex-1 px-4 py-2 bg-black text-white rounded hover:bg-gray-900 transition flex items-center justify-center gap-2">
+            <span data-i18n="analyze">Analyze</span>
+          </button>
+          <button id="resetBtn" class="flex-1 px-4 py-2 border border-gray-300 rounded hover:bg-gray-100 transition" data-i18n="reset">Reset</button>
         </div>
 
         <!-- Tips -->
         <div class="text-xs text-gray-500">
-          <strong>Tips:</strong>
+          <strong data-i18n="tips">Tips:</strong>
           <ul class="list-disc ml-5 mt-2 space-y-1">
-            <li>Use daylight and avoid strong backlight.</li>
-            <li>Ensure hair occupies most of the frame.</li>
+            <li data-i18n="tip1">Use daylight and avoid strong backlight.</li>
+            <li data-i18n="tip2">Ensure hair occupies most of the frame.</li>
           </ul>
         </div>
 
         <!-- Status -->
         <div class="text-sm mt-4">
-          <p class="font-semibold text-gray-700">Status:</p>
+          <p class="font-semibold text-gray-700" data-i18n="status">Status:</p>
           <p id="status" class="mt-1 text-gray-600">Idle</p>
         </div>
       </div>
@@ -80,7 +91,7 @@
 
     <!-- Result Section -->
     <aside class="card p-6">
-      <h2 class="text-xl font-bold mb-3">Result</h2>
+      <h2 class="text-xl font-bold mb-3" data-i18n="result">Result</h2>
 
       <div id="resultArea" class="hidden">
         <div class="flex items-center gap-4 mb-4">
@@ -97,17 +108,22 @@
         </div>
 
         <div class="mt-6">
-          <h3 class="font-semibold text-gray-800 mb-2">Recommended Haircuts</h3>
+          <h3 class="font-semibold text-gray-800 mb-2" data-i18n="recommendedCuts">Recommended Haircuts</h3>
           <div id="haircuts" class="grid grid-cols-1 gap-3"></div>
         </div>
 
         <div class="mt-6">
-          <h3 class="font-semibold text-gray-800 mb-2">Care Tips</h3>
+          <h3 class="font-semibold text-gray-800 mb-2" data-i18n="careTips">Care Tips</h3>
           <ul id="careTips" class="list-disc ml-5 text-sm text-gray-700 space-y-1"></ul>
         </div>
+
+        <!-- Export Button -->
+        <button id="exportBtn" class="mt-6 w-full px-4 py-2 border border-gray-300 rounded hover:bg-gray-100 transition flex items-center justify-center gap-2">
+          📄 <span data-i18n="exportResult">Export Result</span>
+        </button>
       </div>
 
-      <div id="placeholderResult" class="text-sm text-gray-500 leading-relaxed">
+      <div id="placeholderResult" class="text-sm text-gray-500 leading-relaxed" data-i18n="placeholderText">
         Upload a photo on the left and click <strong>Analyze</strong> to get personalized hair type, haircut suggestions, and care recommendations.
       </div>
     </aside>
@@ -116,7 +132,7 @@
   <!-- Sidebar Contact -->
   <div id="contactSidebar" class="fixed top-0 right-0 w-80 h-full bg-white shadow-2xl transform translate-x-full transition-transform duration-300 z-50">
     <div class="p-6 flex justify-between items-center border-b">
-      <h2 class="text-xl font-bold">Contact Us</h2>
+      <h2 class="text-xl font-bold" data-i18n="contactUs">Contact Us</h2>
       <button id="closeSidebar" class="text-gray-500 hover:text-black text-2xl leading-none">&times;</button>
     </div>
     <div class="p-6 text-sm text-gray-700 space-y-3">
@@ -124,7 +140,7 @@
       <p><strong>Phone:</strong> +62 812-3456-7890</p>
       <p><strong>Address:</strong> Jl. Teknokrat No.10, Bandar Lampung</p>
       <hr class="my-3">
-      <p>Follow us:</p>
+      <p data-i18n="followUs">Follow us:</p>
       <div class="flex gap-3">
         <a href="https://instagram.com/barberai" target="_blank" class="text-gray-600 hover:text-black">Instagram</a>
         <a href="https://wa.me/6281234567890" target="_blank" class="text-gray-600 hover:text-black">WhatsApp</a>
@@ -135,12 +151,12 @@
   <!-- Sidebar How it works -->
   <div id="howSidebar" class="fixed top-0 right-0 w-80 h-full bg-white shadow-2xl transform translate-x-full transition-transform duration-300 z-50">
     <div class="p-6 flex justify-between items-center border-b">
-      <h2 class="text-xl font-bold">How it works</h2>
+      <h2 class="text-xl font-bold" data-i18n="howItWorks">How it works</h2>
       <button id="closeHow" class="text-gray-500 hover:text-black text-2xl leading-none">&times;</button>
     </div>
     <div class="p-6 text-sm text-gray-700 space-y-3">
-      <ol class="list-decimal ml-5 space-y-2">
-        <li>Upload a clear photo of the customer’s hair.</li>
+      <ol class="list-decimal ml-5 space-y-2" data-i18n="howSteps">
+        <li>Upload a clear photo of the customer's hair.</li>
         <li>Optionally, provide a TensorFlow.js model URL for custom AI classification.</li>
         <li>Click <strong>Analyze</strong> to detect hair type and get recommendations.</li>
         <li>View suggested haircuts and care tips in the result panel.</li>
@@ -161,16 +177,132 @@
 
   <!-- JS -->
   <script>
-    // ========== Hair classification ==========
-    const HAIRCUT_MAP = {
-      '1A': { desc:'Straight, fine', cuts:['Two Block','Textured Crop'], tips:['Use light clarifying shampoo','Avoid heavy conditioners at roots'] },
-      '1B': { desc:'Straight, medium', cuts:['Pompadour','Side Part'], tips:['Condition mid-lengths','Use volumizing powder'] },
-      '2A': { desc:'Wavy, loose', cuts:['Textured Crop','Curtain Fringe'], tips:['Use sea-salt spray','Avoid over-brushing'] },
-      '2B': { desc:'Wavy, medium', cuts:['Wavy Undercut','Shag'], tips:['Use leave-in conditioner','Scrunch with diffuser'] },
-      '3C': { desc:'Curly, tight spiral', cuts:['Afro Short Cut','Short Taper'], tips:['Hydrating masks','LOC method (leave-in, oil, cream)'] },
-      '4C': { desc:'Coily, dense', cuts:['Rounded Afro','High Top'], tips:['Seal moisture with oils','Avoid harsh brushing'] }
+    // ========== TRANSLATIONS ==========
+    const TRANSLATIONS = {
+      en: {
+        uploadTitle: "Upload Photo",
+        uploadDesc: "Upload a clear photo of the customer's hair (top or 45° angle). Crop to the hair area for best results.",
+        chooseImage: "Choose image",
+        analyze: "Analyze",
+        reset: "Reset",
+        tips: "Tips:",
+        tip1: "Use daylight and avoid strong backlight.",
+        tip2: "Ensure hair occupies most of the frame.",
+        status: "Status:",
+        result: "Result",
+        recommendedCuts: "Recommended Haircuts",
+        careTips: "Care Tips",
+        exportResult: "Export Result",
+        placeholderText: "Upload a photo on the left and click <strong>Analyze</strong> to get personalized hair type, haircut suggestions, and care recommendations.",
+        contactUs: "Contact Us",
+        followUs: "Follow us:",
+        howItWorks: "How it works",
+        noImage: "No image selected"
+      },
+      id: {
+        uploadTitle: "Unggah Foto",
+        uploadDesc: "Unggah foto rambut pelanggan yang jelas (atas atau sudut 45°). Potong ke area rambut untuk hasil terbaik.",
+        chooseImage: "Pilih gambar",
+        analyze: "Analisis",
+        reset: "Reset",
+        tips: "Tips:",
+        tip1: "Gunakan cahaya alami dan hindari backlight yang kuat.",
+        tip2: "Pastikan rambut memenuhi sebagian besar frame.",
+        status: "Status:",
+        result: "Hasil",
+        recommendedCuts: "Rekomendasi Potongan Rambut",
+        careTips: "Tips Perawatan",
+        exportResult: "Ekspor Hasil",
+        placeholderText: "Unggah foto di sebelah kiri dan klik <strong>Analisis</strong> untuk mendapatkan tipe rambut, saran potongan, dan rekomendasi perawatan yang dipersonalisasi.",
+        contactUs: "Hubungi Kami",
+        followUs: "Ikuti kami:",
+        howItWorks: "Cara Kerja",
+        noImage: "Tidak ada gambar yang dipilih"
+      }
     };
 
+    // ========== HAIR CLASSIFICATION ==========
+    const HAIRCUT_MAP = {
+      '1A': { 
+        desc: { en: 'Straight, fine', id: 'Lurus, halus' }, 
+        cuts: ['Two Block', 'Textured Crop'], 
+        tips: { 
+          en: ['Use light clarifying shampoo', 'Avoid heavy conditioners at roots'],
+          id: ['Gunakan shampoo pembersih ringan', 'Hindari conditioner berat di akar']
+        } 
+      },
+      '1B': { 
+        desc: { en: 'Straight, medium', id: 'Lurus, medium' }, 
+        cuts: ['Pompadour', 'Side Part'], 
+        tips: { 
+          en: ['Condition mid-lengths', 'Use volumizing powder'],
+          id: ['Conditioner di bagian tengah', 'Gunakan powder penambah volume']
+        } 
+      },
+      '2A': { 
+        desc: { en: 'Wavy, loose', id: 'Bergelombang, longgar' }, 
+        cuts: ['Textured Crop', 'Curtain Fringe'], 
+        tips: { 
+          en: ['Use sea-salt spray', 'Avoid over-brushing'],
+          id: ['Gunakan sea-salt spray', 'Hindari menyisir berlebihan']
+        } 
+      },
+      '2B': { 
+        desc: { en: 'Wavy, medium', id: 'Bergelombang, medium' }, 
+        cuts: ['Wavy Undercut', 'Shag'], 
+        tips: { 
+          en: ['Use leave-in conditioner', 'Scrunch with diffuser'],
+          id: ['Gunakan leave-in conditioner', 'Scrunch dengan diffuser']
+        } 
+      },
+      '3A': { 
+        desc: { en: 'Curly, loose', id: 'Keriting, longgar' }, 
+        cuts: ['Layered Curls', 'Curly Shag'], 
+        tips: { 
+          en: ['Use curl cream', 'Air dry when possible'],
+          id: ['Gunakan curl cream', 'Keringkan udara bila memungkinkan']
+        } 
+      },
+      '3B': { 
+        desc: { en: 'Curly, springy', id: 'Keriting, elastis' }, 
+        cuts: ['Curly Fro', 'Deva Cut'], 
+        tips: { 
+          en: ['Deep condition weekly', 'Sleep on silk pillowcase'],
+          id: ['Deep conditioning mingguan', 'Tidur dengan sarung bantal sutra']
+        } 
+      },
+      '3C': { 
+        desc: { en: 'Curly, tight spiral', id: 'Keriting, spiral rapat' }, 
+        cuts: ['Afro Short Cut', 'Short Taper'], 
+        tips: { 
+          en: ['Hydrating masks', 'LOC method (leave-in, oil, cream)'],
+          id: ['Masker pelembap', 'Metode LOC (leave-in, oil, cream)']
+        } 
+      },
+      '4A': { 
+        desc: { en: 'Coily, tight', id: 'Kriting rapat' }, 
+        cuts: ['Twist Out', 'Fade with Design'], 
+        tips: { 
+          en: ['Protective styles', 'Regular trims'],
+          id: ['Gaya protektif', 'Potong rutin']
+        } 
+      },
+      '4C': { 
+        desc: { en: 'Coily, dense', id: 'Kriting, padat' }, 
+        cuts: ['Rounded Afro', 'High Top'], 
+        tips: { 
+          en: ['Seal moisture with oils', 'Avoid harsh brushing'],
+          id: ['Segel kelembapan dengan minyak', 'Hindari menyikat keras']
+        } 
+      }
+    };
+
+    // ========== GLOBAL VARIABLES ==========
+    let currentLanguage = 'en';
+    let currentImage = null;
+    let currentResult = null;
+
+    // ========== DOM ELEMENTS ==========
     const fileInput = document.getElementById('fileInput');
     const previewImage = document.getElementById('previewImage');
     const previewText = document.getElementById('previewText');
@@ -183,28 +315,69 @@
     const hairDescEl = document.getElementById('hairDesc');
     const haircutsEl = document.getElementById('haircuts');
     const careTipsEl = document.getElementById('careTips');
-    let currentImage = null;
+    const exportBtn = document.getElementById('exportBtn');
+    const languageToggle = document.getElementById('languageToggle');
 
+    // ========== LANGUAGE SYSTEM ==========
+    function setLanguage(lang) {
+      currentLanguage = lang;
+      document.querySelectorAll('[data-i18n]').forEach(element => {
+        const key = element.getAttribute('data-i18n');
+        if (TRANSLATIONS[lang] && TRANSLATIONS[lang][key]) {
+          if (element.tagName === 'INPUT' || element.tagName === 'TEXTAREA') {
+            element.placeholder = TRANSLATIONS[lang][key];
+          } else {
+            element.innerHTML = TRANSLATIONS[lang][key];
+          }
+        }
+      });
+      
+      // Update current result if exists
+      if (currentResult) {
+        showResult(currentResult.typeKey, currentResult.confidence);
+      }
+    }
+
+    languageToggle.addEventListener('change', (e) => {
+      setLanguage(e.target.value);
+    });
+
+    // ========== FILE HANDLING ==========
     fileInput.addEventListener('change', e => {
       const f = e.target.files[0];
       if (!f) return;
+      
+      // File validation
+      if (!f.type.startsWith('image/')) {
+        status.textContent = currentLanguage === 'en' ? 'Please upload an image file' : 'Harap unggah file gambar';
+        return;
+      }
+      
+      if (f.size > 5 * 1024 * 1024) {
+        status.textContent = currentLanguage === 'en' ? 'File too large (max 5MB)' : 'File terlalu besar (maks 5MB)';
+        return;
+      }
+      
       const url = URL.createObjectURL(f);
       previewImage.src = url;
       previewImage.classList.remove('hidden');
       previewText.classList.add('hidden');
       currentImage = f;
-      status.textContent = 'Image ready. Click Analyze.';
+      status.textContent = currentLanguage === 'en' ? 'Image ready. Click Analyze.' : 'Gambar siap. Klik Analisis.';
     });
 
     resetBtn.addEventListener('click', () => {
       fileInput.value = '';
       previewImage.classList.add('hidden');
       previewText.classList.remove('hidden');
-      status.textContent = 'Idle';
+      status.textContent = currentLanguage === 'en' ? 'Idle' : 'Siap';
       resultArea.classList.add('hidden');
       placeholderResult.classList.remove('hidden');
+      currentImage = null;
+      currentResult = null;
     });
 
+    // ========== AI CLASSIFICATION ==========
     function demoClassify() {
       if (!currentImage) return null;
       const keys = Object.keys(HAIRCUT_MAP);
@@ -212,19 +385,44 @@
       return { label: keys[idx], confidence: Math.round(80 + (currentImage.size % 20)) };
     }
 
-    analyzeBtn.addEventListener('click', () => {
-      status.textContent = 'Analyzing...';
+    analyzeBtn.addEventListener('click', async () => {
+      if (!currentImage) {
+        status.textContent = currentLanguage === 'en' ? 'Please upload an image first.' : 'Harap unggah gambar terlebih dahulu.';
+        return;
+      }
+
+      // Show loading state
+      analyzeBtn.innerHTML = '<span class="spinner">⟳</span> ' + (currentLanguage === 'en' ? 'Analyzing...' : 'Menganalisis...');
+      analyzeBtn.disabled = true;
+      status.textContent = currentLanguage === 'en' ? 'Analyzing image...' : 'Menganalisis gambar...';
+
+      // Simulate AI processing delay
+      await new Promise(resolve => setTimeout(resolve, 2000));
+
       const res = demoClassify();
-      if (!res) { status.textContent = 'Please upload an image first.'; return; }
+      if (!res) {
+        status.textContent = currentLanguage === 'en' ? 'Analysis failed.' : 'Analisis gagal.';
+        analyzeBtn.innerHTML = currentLanguage === 'en' ? 'Analyze' : 'Analisis';
+        analyzeBtn.disabled = false;
+        return;
+      }
+
       showResult(res.label, res.confidence);
-      status.textContent = 'Done';
+      status.textContent = currentLanguage === 'en' ? 'Analysis complete!' : 'Analisis selesai!';
+      
+      // Reset button state
+      analyzeBtn.innerHTML = currentLanguage === 'en' ? 'Analyze' : 'Analisis';
+      analyzeBtn.disabled = false;
     });
 
     function showResult(typeKey, confidence) {
+      currentResult = { typeKey, confidence };
       const data = HAIRCUT_MAP[typeKey] || HAIRCUT_MAP['2B'];
+      
       hairTypeEl.textContent = `Type ${typeKey}`;
-      hairDescEl.textContent = `${data.desc} — Confidence: ${confidence}%`;
+      hairDescEl.textContent = `${data.desc[currentLanguage]} — ${currentLanguage === 'en' ? 'Confidence' : 'Tingkat Kepercayaan'}: ${confidence}%`;
 
+      // Render haircuts
       haircutsEl.innerHTML = data.cuts.map(cut => `
         <div class="flex items-center gap-3 p-3 border rounded bg-gray-50 hover:bg-gray-100 transition">
           <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#111827" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
@@ -232,17 +430,51 @@
           </svg>
           <div>
             <div class="font-medium">${cut}</div>
-            <div class="text-xs text-gray-500">Recommended for ${data.desc} hair</div>
+            <div class="text-xs text-gray-500">${currentLanguage === 'en' ? 'Recommended for' : 'Direkomendasikan untuk'} ${data.desc[currentLanguage]} ${currentLanguage === 'en' ? 'hair' : 'rambut'}</div>
           </div>
         </div>
       `).join('');
 
-      careTipsEl.innerHTML = data.tips.map(t => `<li>${t}</li>`).join('');
+      // Render care tips
+      careTipsEl.innerHTML = data.tips[currentLanguage].map(t => `<li>${t}</li>`).join('');
+      
       resultArea.classList.remove('hidden');
       placeholderResult.classList.add('hidden');
     }
 
-    // ===== Sidebar logic =====
+    // ========== EXPORT FUNCTIONALITY ==========
+    exportBtn.addEventListener('click', () => {
+      if (!currentResult) return;
+      
+      const data = HAIRCUT_MAP[currentResult.typeKey];
+      const resultText = `
+BARBERAI HAIR ANALYSIS RESULT
+=============================
+Hair Type: ${currentResult.typeKey}
+Description: ${data.desc[currentLanguage]}
+Confidence: ${currentResult.confidence}%
+
+RECOMMENDED HAIRCUTS:
+${data.cuts.map(cut => `• ${cut}`).join('\n')}
+
+CARE TIPS:
+${data.tips[currentLanguage].map(tip => `• ${tip}`).join('\n')}
+
+Generated by BarberAI - ${new Date().toLocaleDateString()}
+      `.trim();
+
+      const blob = new Blob([resultText], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `barberai-result-${currentResult.typeKey}.txt`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    });
+
+    // ========== SIDEBAR LOGIC ==========
     const contactBtn = document.getElementById('contactBtn');
     const contactSidebar = document.getElementById('contactSidebar');
     const closeSidebar = document.getElementById('closeSidebar');
@@ -274,12 +506,13 @@
     });
 
     overlay.addEventListener('click', () => {
-      // tutup semua sidebar
       contactSidebar.classList.add('translate-x-full');
       howSidebar.classList.add('translate-x-full');
       overlay.classList.add('hidden');
     });
 
+    // Initialize
+    setLanguage('en');
   </script>
 </body>
 </html>
